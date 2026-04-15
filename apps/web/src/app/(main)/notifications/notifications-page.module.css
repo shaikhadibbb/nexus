@@ -1,0 +1,86 @@
+.page {
+  width: 100%;
+  min-height: 100dvh;
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  height: 56px;
+  padding: 0 var(--spacing-md);
+  border-bottom: 1px solid var(--color-border);
+  background: color-mix(in srgb, var(--color-bg) 84%, transparent);
+  backdrop-filter: blur(var(--blur-glass));
+  -webkit-backdrop-filter: blur(var(--blur-glass));
+}
+
+.title {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.markBtn {
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  color: var(--text-primary);
+  font-weight: 600;
+  background: var(--color-surface);
+}
+
+.groupHeader {
+  padding: 10px var(--spacing-md);
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.item {
+  padding: 12px var(--spacing-md);
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.itemUnread {
+  background: color-mix(in srgb, var(--brand-mid) 8%, transparent);
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-top: 6px;
+  background: var(--color-like);
+}
+
+.content {
+  flex: 1;
+}
+
+.message {
+  color: var(--text-primary);
+}
+
+.meta {
+  margin-top: 2px;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+.stateCard {
+  margin: var(--spacing-lg);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  padding: var(--spacing-lg);
+  color: var(--text-secondary);
+}

@@ -1,0 +1,425 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   NEXUS DESIGN SYSTEM — GLOBAL STYLES
+   2026-grade premium aesthetic: dark-first glassmorphism
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Color palette ────────────────────────────────────────────────────────── */
+  --color-bg:              #0a0a0f;
+  --color-bg-secondary:    #0f0f18;
+  --color-bg-tertiary:     #141420;
+  --color-surface:         #1a1a28;
+  --color-surface-2:       #1f1f30;
+  --color-border:          rgba(255, 255, 255, 0.07);
+  --color-border-strong:   rgba(255, 255, 255, 0.12);
+
+  /* ── Brand gradient ───────────────────────────────────────────────────────── */
+  --brand-from:   #7c3aed;
+  --brand-mid:    #a855f7;
+  --brand-to:     #ec4899;
+  --brand-glow:   rgba(124, 58, 237, 0.35);
+
+  --gradient-brand:   linear-gradient(135deg, var(--brand-from), var(--brand-mid), var(--brand-to));
+  --gradient-surface: linear-gradient(135deg, rgba(26, 26, 40, 0.9), rgba(15, 15, 24, 0.9));
+  --gradient-glow:    radial-gradient(ellipse at center, var(--brand-glow) 0%, transparent 70%);
+
+  /* ── Text ─────────────────────────────────────────────────────────────────── */
+  --text-primary:   rgba(255, 255, 255, 0.95);
+  --text-secondary: rgba(255, 255, 255, 0.6);
+  --text-muted:     rgba(255, 255, 255, 0.35);
+  --text-inverse:   rgba(0, 0, 0, 0.9);
+
+  /* ── Semantic colors ──────────────────────────────────────────────────────── */
+  --color-like:       #f43f5e;
+  --color-repost:     #22c55e;
+  --color-bookmark:   #f59e0b;
+  --color-mention:    #3b82f6;
+  --color-verified:   #7c3aed;
+  --color-online:     #22c55e;
+  --color-offline:    rgba(255, 255, 255, 0.25);
+  --color-error:      #f43f5e;
+  --color-warning:    #f59e0b;
+  --color-success:    #22c55e;
+  --color-info:       #3b82f6;
+
+  /* ── Momentum colors ──────────────────────────────────────────────────────── */
+  --momentum-cold:    #3b82f6;
+  --momentum-warm:    #f59e0b;
+  --momentum-hot:     #f43f5e;
+
+  /* ── Spacing ──────────────────────────────────────────────────────────────── */
+  --spacing-xs:  4px;
+  --spacing-sm:  8px;
+  --spacing-md:  16px;
+  --spacing-lg:  24px;
+  --spacing-xl:  32px;
+  --spacing-2xl: 48px;
+  --spacing-3xl: 64px;
+
+  /* ── Radius ───────────────────────────────────────────────────────────────── */
+  --radius-sm:   6px;
+  --radius-md:   10px;
+  --radius-lg:   16px;
+  --radius-xl:   20px;
+  --radius-full: 9999px;
+
+  /* ── Shadow / glass ───────────────────────────────────────────────────────── */
+  --shadow-sm:  0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-md:  0 4px 16px rgba(0, 0, 0, 0.5);
+  --shadow-lg:  0 8px 32px rgba(0, 0, 0, 0.6);
+  --shadow-xl:  0 16px 64px rgba(0, 0, 0, 0.7);
+  --shadow-brand: 0 0 40px var(--brand-glow);
+
+  --glass-bg:     rgba(26, 26, 40, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --blur-glass:   16px;
+
+  /* ── Typography ───────────────────────────────────────────────────────────── */
+  --font-sans: 'Inter', var(--font-inter), system-ui, -apple-system, sans-serif;
+  --font-mono: 'SF Mono', 'Fira Code', monospace;
+
+  /* ── Layout ───────────────────────────────────────────────────────────────── */
+  --sidebar-width:       260px;
+  --sidebar-width-sm:    72px;
+  --content-width:       600px;
+  --right-panel-width:   340px;
+  --header-height:       60px;
+
+  /* ── Transitions ──────────────────────────────────────────────────────────── */
+  --transition-fast:   0.12s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow:   0.4s  cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Light theme overrides
+   ───────────────────────────────────────────────────────────────────────────── */
+[data-theme="light"] {
+  --color-bg:              #f8f8fc;
+  --color-bg-secondary:    #f0f0f8;
+  --color-bg-tertiary:     #e8e8f4;
+  --color-surface:         #ffffff;
+  --color-surface-2:       #f5f5fb;
+  --color-border:          rgba(0, 0, 0, 0.08);
+  --color-border-strong:   rgba(0, 0, 0, 0.14);
+
+  --text-primary:   rgba(0, 0, 0, 0.9);
+  --text-secondary: rgba(0, 0, 0, 0.55);
+  --text-muted:     rgba(0, 0, 0, 0.35);
+
+  --glass-bg:     rgba(255, 255, 255, 0.8);
+  --glass-border: rgba(0, 0, 0, 0.08);
+  --shadow-md:    0 4px 16px rgba(0, 0, 0, 0.08);
+  --shadow-lg:    0 8px 32px rgba(0, 0, 0, 0.12);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Reset & base
+   ───────────────────────────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-bg);
+  color: var(--text-primary);
+  line-height: 1.6;
+  font-size: 15px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Scrollbar styling
+   ───────────────────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.22); }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Typography utilities
+   ───────────────────────────────────────────────────────────────────────────── */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--text-primary);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+a:hover { text-decoration: none; }
+
+img, video {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+button {
+  cursor: pointer;
+  font-family: inherit;
+  border: none;
+  background: none;
+}
+
+input, textarea, select {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Layout helpers
+   ───────────────────────────────────────────────────────────────────────────── */
+.nexus-layout {
+  display: grid;
+  grid-template-columns: var(--sidebar-width) 1fr var(--right-panel-width);
+  min-height: 100dvh;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+@media (max-width: 1200px) {
+  .nexus-layout {
+    grid-template-columns: var(--sidebar-width-sm) 1fr;
+  }
+  .nexus-right-panel { display: none; }
+}
+
+@media (max-width: 768px) {
+  .nexus-layout {
+    grid-template-columns: 1fr;
+  }
+  .nexus-sidebar { display: none; }
+  .nexus-mobile-nav { display: flex; }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Glass morphism card
+   ───────────────────────────────────────────────────────────────────────────── */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--blur-glass));
+  -webkit-backdrop-filter: blur(var(--blur-glass));
+  border: 1px solid var(--glass-border);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Brand gradient utilities
+   ───────────────────────────────────────────────────────────────────────────── */
+.gradient-text {
+  background: var(--gradient-brand);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-bg { background: var(--gradient-brand); }
+
+.gradient-border {
+  position: relative;
+}
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: var(--gradient-brand);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Skeleton loading
+   ───────────────────────────────────────────────────────────────────────────── */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-surface) 25%,
+    var(--color-surface-2) 37%,
+    var(--color-surface) 63%
+  );
+  background-size: 400px 100%;
+  animation: skeleton-shimmer 1.4s ease infinite;
+  border-radius: var(--radius-md);
+}
+
+@keyframes skeleton-shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Focus ring
+   ───────────────────────────────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--brand-mid);
+  outline-offset: 2px;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Momentum score indicators
+   ───────────────────────────────────────────────────────────────────────────── */
+.momentum-bar {
+  height: 2px;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--momentum-cold), var(--momentum-warm), var(--momentum-hot));
+  transform-origin: left;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Content HTML (post body)
+   ───────────────────────────────────────────────────────────────────────────── */
+.post-content a[data-mention] {
+  color: var(--brand-mid);
+  font-weight: 500;
+  transition: color var(--transition-fast);
+}
+.post-content a[data-mention]:hover { color: var(--brand-from); }
+
+.post-content a[data-hashtag] {
+  color: var(--color-mention);
+  font-weight: 500;
+  transition: color var(--transition-fast);
+}
+.post-content a[data-hashtag]:hover { color: #60a5fa; }
+
+.post-content a:not([data-mention]):not([data-hashtag]) {
+  color: var(--brand-mid);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Glow effects
+   ───────────────────────────────────────────────────────────────────────────── */
+.glow-brand {
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.3),
+              0 0 60px rgba(168, 85, 247, 0.1);
+}
+
+.glow-danger {
+  box-shadow: 0 0 20px rgba(244, 63, 94, 0.3);
+}
+
+.glow-success {
+  box-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Verified badge glow
+   ───────────────────────────────────────────────────────────────────────────── */
+.verified-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  background: var(--gradient-brand);
+  border-radius: 50%;
+  filter: drop-shadow(0 0 4px rgba(168, 85, 247, 0.6));
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Toast container
+   ───────────────────────────────────────────────────────────────────────────── */
+#toast-root {
+  position: fixed;
+  bottom: var(--spacing-lg);
+  right: var(--spacing-lg);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  max-width: 380px;
+  width: 100%;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Compose box
+   ───────────────────────────────────────────────────────────────────────────── */
+.compose-textarea {
+  width: 100%;
+  resize: none;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.6;
+  outline: none;
+  min-height: 72px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.compose-textarea::placeholder {
+  color: var(--text-muted);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Media grid layouts
+   ───────────────────────────────────────────────────────────────────────────── */
+.media-grid-1 { display: block; border-radius: var(--radius-lg); overflow: hidden; }
+.media-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; border-radius: var(--radius-lg); overflow: hidden; }
+.media-grid-3 { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: auto auto; gap: 2px; border-radius: var(--radius-lg); overflow: hidden; }
+.media-grid-4 { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: auto auto; gap: 2px; border-radius: var(--radius-lg); overflow: hidden; }
+.media-grid-3 .media-item:first-child { grid-row: 1 / 3; }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Notification dot
+   ───────────────────────────────────────────────────────────────────────────── */
+.notification-dot {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-like);
+  border: 2px solid var(--color-bg);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Focus mode overlay
+   ───────────────────────────────────────────────────────────────────────────── */
+.focus-mode-indicator {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--gradient-brand);
+  z-index: 9998;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Responsive text
+   ───────────────────────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  :root { font-size: 14px; }
+  #toast-root { bottom: 80px; right: var(--spacing-md); left: var(--spacing-md); max-width: unset; }
+}

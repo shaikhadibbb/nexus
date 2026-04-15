@@ -1,0 +1,67 @@
+.page {
+  width: 100%;
+  min-height: 100dvh;
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  padding: 0 var(--spacing-md);
+  border-bottom: 1px solid var(--color-border);
+  background: color-mix(in srgb, var(--color-bg) 84%, transparent);
+  backdrop-filter: blur(var(--blur-glass));
+  -webkit-backdrop-filter: blur(var(--blur-glass));
+}
+
+.title {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+}
+
+.item {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  padding: 14px var(--spacing-md);
+  border-bottom: 1px solid var(--color-border);
+  transition: background-color var(--transition-fast);
+}
+
+.item:hover {
+  background: color-mix(in srgb, var(--color-surface) 70%, transparent);
+}
+
+.names {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.preview {
+  margin-top: 2px;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.meta {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.stateCard {
+  margin: var(--spacing-lg);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  padding: var(--spacing-lg);
+  color: var(--text-secondary);
+}
