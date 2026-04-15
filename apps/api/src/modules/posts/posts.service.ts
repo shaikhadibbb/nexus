@@ -170,6 +170,8 @@ export async function createPost(
         subscriberOnly: input.subscriberOnly ?? false,
         requiredTierId: input.requiredTierId ?? null,
         moderationStatus: 'approved',
+        momentumScore: 15,
+        momentumVelocity: 0,
         // Link media
         ...(input.mediaIds?.length
           ? {

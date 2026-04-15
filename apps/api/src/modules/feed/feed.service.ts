@@ -79,7 +79,7 @@ export async function getFollowingFeed(
 
   const followedIds = follows.map((f: { followingId: string }) => f.followingId);
   if (followedIds.length === 0) {
-    return { items: [], pagination: { hasMore: false, nextCursor: null, prevCursor: null } };
+    return { items: [], nextCursor: null };
   }
 
   // Get muted user IDs to filter
@@ -110,21 +110,10 @@ export async function getFollowingFeed(
   const items = hasMore ? filtered.slice(0, limit) : filtered;
 
   return {
-    items: items.map((post: FeedPost) => ({
-      id: `feed:${post.id}`,
-      post,
-      feedType: 'following',
-      reason: 'following',
-      score: post.createdAt.getTime(),
-      seenAt: null,
-    })),
-    pagination: {
-      hasMore,
-      nextCursor: hasMore
-        ? Buffer.from(items[items.length - 1]!.createdAt.toISOString()).toString('base64')
-        : null,
-      prevCursor: null,
-    },
+    items,
+    nextCursor: hasMore
+      ? Buffer.from(items[items.length - 1]!.createdAt.toISOString()).toString('base64')
+      : null,
   };
 }
 
@@ -155,7 +144,7 @@ export async function getHomeFeed(
   });
   const mutedIds = new Set(mutes.map((m: { mutedId: string }) => m.mutedId));
 
-  // For home feed: mix following posts + trending public posts
+  // For home feed: mix user's own posts + following posts + trending public posts
   const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 3600000);
 
   const posts = await prisma.post.findMany({
@@ -166,8 +155,9 @@ export async function getHomeFeed(
       createdAt: { gte: sevenDaysAgo },
       momentumScore: { lt: cursorScore },
       OR: [
-        { authorId: { in: followedIds } },
-        { visibility: 'public', momentumScore: { gte: 50 } }, // Trending public content
+        { authorId: userId }, // User's own posts
+        { authorId: { in: followedIds } }, // Posts from followed users
+        { visibility: 'public', momentumScore: { gte: 10 } }, // Trending public content
       ],
     },
     select: FEED_POST_SELECT,
@@ -181,14 +171,7 @@ export async function getHomeFeed(
   const items = hasMore ? filtered.slice(0, limit) : filtered;
 
   return {
-    items: items.map((post: FeedPost) => ({
-      id: `home:${post.id}`,
-      post,
-      feedType: 'home',
-      reason: followedIds.includes(post.authorId) ? 'following' : 'trending',
-      score: post.momentumScore,
-      seenAt: null,
-    })),
+    items,
     pagination: {
       hasMore,
       nextCursor: hasMore
@@ -196,9 +179,6 @@ export async function getHomeFeed(
         : null,
       prevCursor: null,
     },
-    feedType: 'home',
-    freshness: 0.85,
-    diversity: 0.7,
   };
 }
 
@@ -238,24 +218,10 @@ export async function getTrendingFeed(options?: {
   const items = hasMore ? posts.slice(0, limit) : posts;
 
   return {
-    items: items.map((post: FeedPost) => ({
-      id: `trending:${post.id}`,
-      post,
-      feedType: 'trending',
-      reason: 'trending',
-      score: post.momentumScore,
-      seenAt: null,
-    })),
-    pagination: {
-      hasMore,
-      nextCursor: hasMore
-        ? Buffer.from(String(items[items.length - 1]!.momentumScore)).toString('base64')
-        : null,
-      prevCursor: null,
-    },
-    feedType: 'trending',
-    freshness: 1.0,
-    diversity: 0.9,
+    items,
+    nextCursor: hasMore
+      ? Buffer.from(String(items[items.length - 1]!.momentumScore)).toString('base64')
+      : null,
   };
 }
 
@@ -324,17 +290,7 @@ export async function getUserFeed(
   const { getUserPosts } = await import('../posts/posts.service');
   const result = await getUserPosts(targetUserId, undefined, options);
   return {
-    ...result,
-    items: result.data.map((post: FeedPost) => ({
-      id: `user:${post.id}`,
-      post,
-      feedType: 'user',
-      reason: 'following',
-      score: post.createdAt.getTime(),
-      seenAt: null,
-    })),
-    feedType: 'user',
-    freshness: 1.0,
-    diversity: 0.5,
+    items: result.data,
+    nextCursor: result.pagination?.nextCursor ?? null,
   };
 }
