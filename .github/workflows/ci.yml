@@ -40,7 +40,7 @@ jobs:
         run: pnpm build --if-present
 
       - name: Prisma migrate deploy
-        working-directory: ./apps/api  # Adjust if your Prisma is elsewhere
+        working-directory: ./apps/api
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: pnpm db:deploy --if-present
