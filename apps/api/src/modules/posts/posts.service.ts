@@ -78,11 +78,11 @@ const POST_SELECT = {
         },
       },
     },
-    orderBy: { order: 'asc' as const },
+    orderBy: { position: 'asc' as const },
   },
   poll: {
     include: {
-      options: { orderBy: { order: 'asc' as const } },
+      options: { orderBy: { position: 'asc' as const } },
     },
   },
 };
@@ -164,8 +164,6 @@ export async function createPost(
         rootId,
         threadPath,
         quotedPostId: input.quotedPostId ?? null,
-        latitude: input.location?.latitude ?? null,
-        longitude: input.location?.longitude ?? null,
         locationName: input.locationName ?? null,
         sensitiveContent: input.sensitiveContent ?? false,
         contentWarning: input.contentWarning ?? null,
@@ -176,7 +174,7 @@ export async function createPost(
         ...(input.mediaIds?.length
           ? {
               media: {
-                create: input.mediaIds.map((mediaId, order) => ({ mediaId, order })),
+                create: input.mediaIds.map((mediaId, position) => ({ mediaId, position })),
               },
             }
           : {}),
@@ -189,7 +187,7 @@ export async function createPost(
                   allowMultiple: input.poll.allowMultiple ?? false,
                   hideResultsUntilEnd: input.poll.hideResultsUntilEnd ?? false,
                   options: {
-                    create: input.poll.options.map((text, order) => ({ text, order })),
+                    create: input.poll.options.map((text, position) => ({ text, position })),
                   },
                 },
               },

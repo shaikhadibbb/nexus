@@ -1,426 +1,442 @@
 // ═══════════════════════════════════════════════════════════════════════════════
-// DATABASE SEED
-// Development seed with realistic demo data
+// DATABASE SEEDER
+// Seeds the database with sample data for development and testing
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { PrismaClient } from '@prisma/client';
-import { createHash } from 'crypto';
+import { prisma } from './index';
+import { hash } from 'bcryptjs';
 
-const prisma = new PrismaClient();
-
-// Simple password hash for dev — NOT for production
-function hashPassword(password: string): string {
-  // In production, bcrypt is used in the API layer
-  // Seed uses crypto for zero-dep seeding
-  return `$dev$${createHash('sha256').update(password).digest('hex')}`;
-}
+const SALT_ROUNDS = 12;
 
 async function main(): Promise<void> {
-  console.log('🌱 Seeding Nexus database...');
+  console.log('🌱 Starting database seed...');
 
-  // ──────────────────────────────────────────────────────
-  // Clean existing data (dev only)
-  // ──────────────────────────────────────────────────────
-  await prisma.transaction.deleteMany();
-  await prisma.subscriptionTier.deleteMany();
-  await prisma.messageRead.deleteMany();
-  await prisma.messageReaction.deleteMany();
-  await prisma.messageMedia.deleteMany();
-  await prisma.message.deleteMany();
-  await prisma.conversationMember.deleteMany();
-  await prisma.conversation.deleteMany();
-  await prisma.notification.deleteMany();
-  await prisma.postHashtag.deleteMany();
-  await prisma.hashtag.deleteMany();
-  await prisma.postMention.deleteMany();
-  await prisma.postLike.deleteMany();
-  await prisma.bookmark.deleteMany();
-  await prisma.pollVote.deleteMany();
-  await prisma.pollOption.deleteMany();
-  await prisma.poll.deleteMany();
-  await prisma.postMedia.deleteMany();
-  await prisma.postEdit.deleteMany();
-  await prisma.post.deleteMany();
-  await prisma.mute.deleteMany();
-  await prisma.block.deleteMany();
-  await prisma.follow.deleteMany();
-  await prisma.refreshToken.deleteMany();
-  await prisma.session.deleteMany();
-  await prisma.oAuthAccount.deleteMany();
-  await prisma.mediaAsset.deleteMany();
-  await prisma.user.deleteMany();
-  await prisma.userList.deleteMany();
+  // Clean existing data in development
+  if (process.env.NODE_ENV === 'development') {
+    console.log('🧹 Cleaning existing data...');
+    await prisma.notification.deleteMany();
+    await prisma.message.deleteMany();
+    await prisma.conversationParticipant.deleteMany();
+    await prisma.conversation.deleteMany();
+    await prisma.postLike.deleteMany();
+    await prisma.bookmark.deleteMany();
+    await prisma.pollVote.deleteMany();
+    await prisma.pollOption.deleteMany();
+    await prisma.poll.deleteMany();
+    await prisma.postMedia.deleteMany();
+    await prisma.post.deleteMany();
+    await prisma.follow.deleteMany();
+    await prisma.session.deleteMany();
+    await prisma.user.deleteMany();
+  }
 
-  console.log('✓ Cleaned existing data');
-
-  // ──────────────────────────────────────────────────────
   // Create users
-  // ──────────────────────────────────────────────────────
-  const [alice, bob, carol, dave] = await Promise.all([
+  console.log('👤 Creating users...');
+  
+  const hashedPassword = await hash('password123', SALT_ROUNDS);
+
+  const users = await Promise.all([
     prisma.user.create({
       data: {
-        email: 'alice@nexus.dev',
+        email: 'alice@example.com',
         username: 'alice',
-        displayName: 'Alice Anderson',
-        passwordHash: hashPassword('Password123'),
-        bio: 'Product designer & creative technologist. Building the future one pixel at a time. ✨',
+        displayName: 'Alice Chen',
+        password: hashedPassword,
+        bio: 'Software engineer passionate about building great products. Open source contributor.',
+        status: 'active',
         accountType: 'creator',
         isVerified: true,
         emailVerified: true,
-        followerCount: 12400,
-        followingCount: 890,
-        postCount: 3,
-        reputationScore: 9240,
-        avatarUrl: 'https://api.dicebear.com/8.x/avataaars/svg?seed=alice',
-        theme: 'dark',
+        website: '[alice.dev](https://alice.dev)',
+        location: 'San Francisco, CA',
+        reputationScore: 1500,
+        followerCount: 2500,
+        followingCount: 350,
+        postCount: 142,
       },
     }),
     prisma.user.create({
       data: {
-        email: 'bob@nexus.dev',
-        username: 'bob_builds',
-        displayName: 'Bob Builder',
-        passwordHash: hashPassword('Password123'),
-        bio: 'Full-stack engineer. Open source contributor. Coffee addict ☕',
-        accountType: 'personal',
-        isVerified: false,
-        emailVerified: true,
-        followerCount: 3200,
-        followingCount: 420,
-        postCount: 2,
-        reputationScore: 2800,
-        avatarUrl: 'https://api.dicebear.com/8.x/avataaars/svg?seed=bob',
-      },
-    }),
-    prisma.user.create({
-      data: {
-        email: 'carol@nexus.dev',
-        username: 'carol_creates',
-        displayName: 'Carol Chen',
-        passwordHash: hashPassword('Password123'),
-        bio: 'AI researcher & writer. Exploring the human-machine interface.',
+        email: 'bob@example.com',
+        username: 'bob',
+        displayName: 'Bob Martinez',
+        password: hashedPassword,
+        bio: 'Designer & creative director. Making the digital world beautiful.',
+        status: 'active',
         accountType: 'creator',
         isVerified: true,
         emailVerified: true,
-        followerCount: 28900,
-        followingCount: 512,
-        postCount: 2,
-        reputationScore: 18600,
-        avatarUrl: 'https://api.dicebear.com/8.x/avataaars/svg?seed=carol',
+        website: '[bobdesigns.co](https://bobdesigns.co)',
+        location: 'Austin, TX',
+        reputationScore: 2100,
+        followerCount: 5000,
+        followingCount: 200,
+        postCount: 89,
       },
     }),
     prisma.user.create({
       data: {
-        email: 'dave@nexus.dev',
-        username: 'davecode',
-        displayName: 'Dave Code',
-        passwordHash: hashPassword('Password123'),
-        bio: 'DevOps & infrastructure. Everything as code.',
-        accountType: 'personal',
-        isVerified: false,
+        email: 'carol@example.com',
+        username: 'carol',
+        displayName: 'Carol Williams',
+        password: hashedPassword,
+        bio: 'Tech journalist covering startups and innovation.',
+        status: 'active',
+        accountType: 'verified',
+        isVerified: true,
         emailVerified: true,
-        followerCount: 1100,
-        followingCount: 320,
-        postCount: 1,
-        reputationScore: 940,
-        avatarUrl: 'https://api.dicebear.com/8.x/avataaars/svg?seed=dave',
+        reputationScore: 3200,
+        followerCount: 15000,
+        followingCount: 500,
+        postCount: 450,
+      },
+    }),
+    prisma.user.create({
+      data: {
+        email: 'david@example.com',
+        username: 'david',
+        displayName: 'David Kim',
+        password: hashedPassword,
+        bio: 'Startup founder. Building the future of social.',
+        status: 'active',
+        accountType: 'business',
+        isVerified: true,
+        emailVerified: true,
+        location: 'New York, NY',
+        reputationScore: 1800,
+        followerCount: 8000,
+        followingCount: 150,
+        postCount: 230,
+      },
+    }),
+    prisma.user.create({
+      data: {
+        email: 'emma@example.com',
+        username: 'emma',
+        displayName: 'Emma Johnson',
+        password: hashedPassword,
+        bio: 'Product manager. Love building things users actually want.',
+        status: 'active',
+        accountType: 'personal',
+        emailVerified: true,
+        reputationScore: 750,
+        followerCount: 1200,
+        followingCount: 400,
+        postCount: 78,
       },
     }),
   ]);
 
-  console.log('✓ Created 4 users');
+  const [alice, bob, carol, david, emma] = users;
 
-  // ──────────────────────────────────────────────────────
   // Create follows
-  // ──────────────────────────────────────────────────────
+  console.log('🔗 Creating follow relationships...');
+  
   await prisma.follow.createMany({
     data: [
-      { followerId: bob.id, followingId: alice.id },
-      { followerId: carol.id, followingId: alice.id },
-      { followerId: dave.id, followingId: alice.id },
-      { followerId: alice.id, followingId: carol.id },
-      { followerId: bob.id, followingId: carol.id },
-      { followerId: dave.id, followingId: bob.id },
       { followerId: alice.id, followingId: bob.id },
+      { followerId: alice.id, followingId: carol.id },
+      { followerId: alice.id, followingId: david.id },
+      { followerId: bob.id, followingId: alice.id },
+      { followerId: bob.id, followingId: carol.id },
+      { followerId: carol.id, followingId: alice.id },
+      { followerId: carol.id, followingId: bob.id },
+      { followerId: carol.id, followingId: david.id },
+      { followerId: david.id, followingId: carol.id },
+      { followerId: emma.id, followingId: alice.id },
+      { followerId: emma.id, followingId: bob.id },
+      { followerId: emma.id, followingId: carol.id },
+      { followerId: emma.id, followingId: david.id },
     ],
   });
 
-  console.log('✓ Created follow relationships');
-
-  // ──────────────────────────────────────────────────────
   // Create posts
-  // ──────────────────────────────────────────────────────
-  const post1 = await prisma.post.create({
+  console.log('📝 Creating posts...');
+
+  const posts = await Promise.all([
+    prisma.post.create({
+      data: {
+        authorId: alice.id,
+        content: 'Just shipped a major update to our platform! 🚀 Been working on this for months and so excited to finally share it with everyone.',
+        contentHtml: '<p>Just shipped a major update to our platform! 🚀 Been working on this for months and so excited to finally share it with everyone.</p>',
+        postType: 'text',
+        visibility: 'public',
+        likeCount: 245,
+        repostCount: 32,
+        quoteCount: 8,
+        viewCount: 5600,
+        momentumScore: 85.5,
+        momentumVelocity: 12.3,
+      },
+    }),
+    prisma.post.create({
+      data: {
+        authorId: bob.id,
+        content: 'Design tip: Whitespace isn\'t empty space, it\'s breathing room for your content. Don\'t be afraid to let your designs breathe.',
+        contentHtml: '<p>Design tip: Whitespace isn\'t empty space, it\'s breathing room for your content. Don\'t be afraid to let your designs breathe.</p>',
+        postType: 'text',
+        visibility: 'public',
+        likeCount: 892,
+        repostCount: 156,
+        quoteCount: 23,
+        viewCount: 15000,
+        momentumScore: 156.2,
+        momentumVelocity: 28.7,
+      },
+    }),
+    prisma.post.create({
+      data: {
+        authorId: carol.id,
+        content: 'BREAKING: Major tech company announces plans to integrate AI into their entire product suite. This could reshape the industry. Thread below 🧵',
+        contentHtml: '<p>BREAKING: Major tech company announces plans to integrate AI into their entire product suite. This could reshape the industry. Thread below 🧵</p>',
+        postType: 'text',
+        visibility: 'public',
+        likeCount: 1523,
+        repostCount: 678,
+        quoteCount: 89,
+        viewCount: 45000,
+        momentumScore: 342.8,
+        momentumVelocity: 65.2,
+      },
+    }),
+    prisma.post.create({
+      data: {
+        authorId: david.id,
+        content: 'Hot take: The best startup advice is to ignore most startup advice. Build something you believe in, solve real problems, talk to your users.',
+        contentHtml: '<p>Hot take: The best startup advice is to ignore most startup advice. Build something you believe in, solve real problems, talk to your users.</p>',
+        postType: 'text',
+        visibility: 'public',
+        likeCount: 567,
+        repostCount: 89,
+        quoteCount: 34,
+        viewCount: 12000,
+        momentumScore: 98.4,
+        momentumVelocity: 15.6,
+      },
+    }),
+    prisma.post.create({
+      data: {
+        authorId: emma.id,
+        content: 'What features would you most want to see in a social media platform? Genuinely curious! Reply below 👇',
+        contentHtml: '<p>What features would you most want to see in a social media platform? Genuinely curious! Reply below 👇</p>',
+        postType: 'text',
+        visibility: 'public',
+        likeCount: 123,
+        repostCount: 12,
+        quoteCount: 5,
+        viewCount: 3400,
+        momentumScore: 45.2,
+        momentumVelocity: 8.1,
+      },
+    }),
+  ]);
+
+  const [alicePost, bobPost, carolPost, davidPost, emmaPost] = posts;
+
+  // Create replies
+  console.log('💬 Creating replies...');
+
+  await prisma.post.create({
+    data: {
+      authorId: bob.id,
+      parentId: alicePost.id,
+      rootId: alicePost.id,
+      threadPath: `${alicePost.id}/`,
+      threadDepth: 1,
+      content: 'Congrats Alice! Can\'t wait to try it out. The preview looked amazing 🔥',
+      contentHtml: '<p>Congrats Alice! Can\'t wait to try it out. The preview looked amazing 🔥</p>',
+      postType: 'text',
+      visibility: 'public',
+      likeCount: 34,
+      viewCount: 800,
+    },
+  });
+
+  await prisma.post.create({
     data: {
       authorId: alice.id,
-      content: 'Just shipped the Nexus momentum feed algorithm 🚀 Engagement velocity + acceleration scoring is live. Early results: 3.2x more relevant posts surfaced for users. Details in thread 🧵',
-      contentHtml: '<p>Just shipped the Nexus momentum feed algorithm 🚀 Engagement velocity + acceleration scoring is live. Early results: 3.2x more relevant posts surfaced for users. Details in thread 🧵</p>',
+      parentId: emmaPost.id,
+      rootId: emmaPost.id,
+      threadPath: `${emmaPost.id}/`,
+      threadDepth: 1,
+      content: 'Better content moderation and less algorithmic manipulation! Users should control what they see.',
+      contentHtml: '<p>Better content moderation and less algorithmic manipulation! Users should control what they see.</p>',
       postType: 'text',
       visibility: 'public',
-      likeCount: 847,
-      repostCount: 212,
-      quoteCount: 38,
-      viewCount: 14200,
-      momentumScore: 94.7,
-      momentumVelocity: 12.3,
-      threadPath: '/',
-    },
-  });
-
-  const post2 = await prisma.post.create({
-    data: {
-      authorId: carol.id,
-      content: 'Hot take: context collapse is the core UX failure of every social platform. We show content without the conversational scaffolding that makes it meaningful. Nexus is the first platform I\'ve seen that genuinely addresses this.',
-      contentHtml: '<p>Hot take: context collapse is the core UX failure of every social platform. We show content without the conversational scaffolding that makes it meaningful. Nexus is the first platform I\'ve seen that genuinely addresses this.</p>',
-      postType: 'text',
-      visibility: 'public',
-      likeCount: 2341,
-      repostCount: 891,
-      quoteCount: 204,
-      viewCount: 48900,
-      momentumScore: 98.2,
-      momentumVelocity: 28.7,
-      threadPath: '/',
-    },
-  });
-
-  const reply1 = await prisma.post.create({
-    data: {
-      authorId: bob.id,
-      content: 'The momentum scoring makes so much sense. Likes that happen 6 hours after posting matter less than likes in the first 30 minutes — that\'s real signal vs. lagging indicator.',
-      contentHtml: '<p>The momentum scoring makes so much sense. Likes that happen 6 hours after posting matter less than likes in the first 30 minutes — that\'s real signal vs. lagging indicator.</p>',
-      postType: 'text',
-      visibility: 'public',
-      parentId: post1.id,
-      rootId: post1.id,
-      threadPath: `/${post1.id}`,
-      likeCount: 143,
-      repostCount: 28,
-      viewCount: 3800,
-      momentumScore: 62.4,
-      momentumVelocity: 4.1,
-    },
-  });
-
-  const post3 = await prisma.post.create({
-    data: {
-      authorId: bob.id,
-      content: 'Working on the Nexus API infra. The Socket.io + Redis adapter combo for fan-out is genuinely elegant. Presence at scale without the usual nightmare.',
-      contentHtml: '<p>Working on the Nexus API infra. The Socket.io + Redis adapter combo for fan-out is genuinely elegant. Presence at scale without the usual nightmare.</p>',
-      postType: 'text',
-      visibility: 'public',
-      likeCount: 89,
-      repostCount: 12,
+      likeCount: 78,
       viewCount: 1200,
-      momentumScore: 44.1,
-      momentumVelocity: 2.8,
-      threadPath: '/',
     },
   });
 
-  const post4 = await prisma.post.create({
-    data: {
-      authorId: dave.id,
-      content: 'Docker Compose + health checks + proper dependency ordering = sanity preserved. Too many devs skip this.',
-      contentHtml: '<p>Docker Compose + health checks + proper dependency ordering = sanity preserved. Too many devs skip this.</p>',
-      postType: 'text',
-      visibility: 'public',
-      likeCount: 56,
-      repostCount: 7,
-      viewCount: 890,
-      momentumScore: 31.2,
-      momentumVelocity: 1.4,
-      threadPath: '/',
-    },
-  });
+  // Create post with poll
+  console.log('📊 Creating poll...');
 
-  const post5 = await prisma.post.create({
+  const pollPost = await prisma.post.create({
     data: {
       authorId: carol.id,
-      content: 'Update to my earlier post on context collapse — I\'ve been thinking more about the "thread grouping" UX in Nexus. The materialized path approach for threads is underrated for solving this.',
-      contentHtml: '<p>Update to my earlier post on context collapse — I\'ve been thinking more about the "thread grouping" UX in Nexus. The materialized path approach for threads is underrated for solving this.</p>',
-      postType: 'quote',
+      content: 'Which tech trend will have the biggest impact in 2025?',
+      contentHtml: '<p>Which tech trend will have the biggest impact in 2025?</p>',
+      postType: 'poll',
       visibility: 'public',
-      quotedPostId: post2.id,
-      likeCount: 318,
-      repostCount: 71,
-      viewCount: 6700,
-      momentumScore: 71.8,
-      momentumVelocity: 8.9,
-      threadPath: '/',
+      likeCount: 342,
+      viewCount: 8500,
     },
+  });
+
+  await prisma.poll.create({
+    data: {
+      postId: pollPost.id,
+      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours from now
+      totalVotes: 1256,
+      options: {
+        create: [
+          { text: 'Artificial Intelligence', voteCount: 534, position: 0 },
+          { text: 'Augmented Reality', voteCount: 312, position: 1 },
+          { text: 'Quantum Computing', voteCount: 189, position: 2 },
+          { text: 'Web3/Blockchain', voteCount: 221, position: 3 },
+        ],
+      },
+    },
+  });
+
+  // Create likes
+  console.log('❤️ Creating likes...');
+
+  await prisma.postLike.createMany({
+    data: [
+      { postId: alicePost.id, userId: bob.id },
+      { postId: alicePost.id, userId: carol.id },
+      { postId: alicePost.id, userId: david.id },
+      { postId: alicePost.id, userId: emma.id },
+      { postId: bobPost.id, userId: alice.id },
+      { postId: bobPost.id, userId: carol.id },
+      { postId: bobPost.id, userId: emma.id },
+      { postId: carolPost.id, userId: alice.id },
+      { postId: carolPost.id, userId: bob.id },
+      { postId: carolPost.id, userId: david.id },
+      { postId: carolPost.id, userId: emma.id },
+      { postId: davidPost.id, userId: alice.id },
+      { postId: davidPost.id, userId: carol.id },
+      { postId: emmaPost.id, userId: alice.id },
+      { postId: emmaPost.id, userId: bob.id },
+    ],
   });
 
   // Update reply counts
-  await prisma.post.update({ where: { id: post1.id }, data: { replyCount: 1 } });
-
-  console.log('✓ Created posts and replies');
-
-  // ──────────────────────────────────────────────────────
-  // Create hashtags
-  // ──────────────────────────────────────────────────────
-  const [ht1, ht2, ht3, ht4] = await Promise.all([
-    prisma.hashtag.create({ data: { tag: 'nexus', postCount: 4 } }),
-    prisma.hashtag.create({ data: { tag: 'buildinpublic', postCount: 3 } }),
-    prisma.hashtag.create({ data: { tag: 'webdev', postCount: 2 } }),
-    prisma.hashtag.create({ data: { tag: 'ux', postCount: 2 } }),
-  ]);
-
-  await prisma.postHashtag.createMany({
-    data: [
-      { postId: post1.id, hashtagId: ht1.id },
-      { postId: post1.id, hashtagId: ht2.id },
-      { postId: post2.id, hashtagId: ht4.id },
-      { postId: post3.id, hashtagId: ht1.id },
-      { postId: post3.id, hashtagId: ht3.id },
-    ],
+  await prisma.post.update({
+    where: { id: alicePost.id },
+    data: { replyCount: 1 },
   });
 
-  console.log('✓ Created hashtags');
-
-  // ──────────────────────────────────────────────────────
-  // Create likes
-  // ──────────────────────────────────────────────────────
-  await prisma.postLike.createMany({
-    data: [
-      { postId: post1.id, userId: bob.id },
-      { postId: post1.id, userId: carol.id },
-      { postId: post2.id, userId: alice.id },
-      { postId: post2.id, userId: bob.id },
-      { postId: post2.id, userId: dave.id },
-      { postId: reply1.id, userId: alice.id },
-      { postId: post3.id, userId: alice.id },
-      { postId: post4.id, userId: bob.id },
-    ],
+  await prisma.post.update({
+    where: { id: emmaPost.id },
+    data: { replyCount: 1 },
   });
 
-  console.log('✓ Created likes');
-
-  // ──────────────────────────────────────────────────────
-  // Creator subscription tier
-  // ──────────────────────────────────────────────────────
-  await prisma.subscriptionTier.create({
-    data: {
-      creatorId: alice.id,
-      name: 'Supporter',
-      description: 'Support Alice\'s work and get exclusive design breakdowns and early access to articles.',
-      priceMonthly: 500, // $5/month
-      benefits: ['Exclusive design breakdowns', 'Early article access', 'Monthly Q&A thread'],
-      subscriberCount: 247,
-      isActive: true,
-    },
-  });
+  // Create subscription tier
+  console.log('💳 Creating subscription tier...');
 
   await prisma.subscriptionTier.create({
     data: {
-      creatorId: carol.id,
-      name: 'Research Access',
-      description: 'Full access to Carol\'s AI research notes, reading lists, and early findings.',
-      priceMonthly: 900, // $9/month
-      benefits: ['AI research notes', 'Curated reading lists', 'Private Discord server', 'Monthly deep-dive'],
-      subscriberCount: 891,
-      isActive: true,
+      creatorId: bob.id,
+      name: 'Design Pro',
+      description: 'Get exclusive design tutorials, source files, and early access to new content.',
+      priceMonthly: 999, // $9.99
+      priceYearly: 9900, // $99.00
+      benefits: [
+        'Exclusive design tutorials',
+        'Downloadable source files',
+        'Early access to new content',
+        'Monthly Q&A sessions',
+        'Discord community access',
+      ],
+      subscriberCount: 234,
     },
   });
 
-  console.log('✓ Created subscription tiers');
+  // Create conversation
+  console.log('💬 Creating conversation...');
 
-  // ──────────────────────────────────────────────────────
-  // Create a conversation
-  // ──────────────────────────────────────────────────────
   const conversation = await prisma.conversation.create({
     data: {
-      type: 'direct',
-      isAccepted: true,
-      members: {
-        createMany: {
-          data: [
-            { userId: alice.id, role: 'member', lastReadAt: new Date() },
-            { userId: bob.id, role: 'member' },
-          ],
-        },
+      lastMessageAt: new Date(),
+      participants: {
+        create: [
+          { userId: alice.id },
+          { userId: bob.id },
+        ],
       },
     },
   });
 
-  const msg1 = await prisma.message.create({
-    data: {
-      conversationId: conversation.id,
-      senderId: alice.id,
-      content: 'Hey Bob! The momentum algorithm PR looks great. Left a few comments.',
-      contentType: 'text',
-    },
-  });
-
-  const msg2 = await prisma.message.create({
+  await prisma.message.create({
     data: {
       conversationId: conversation.id,
       senderId: bob.id,
-      content: 'Thanks Alice! Will address those comments today. The sliding window rate limiter is the piece I\'m most proud of.',
-      contentType: 'text',
-      replyToId: msg1.id,
+      content: 'Hey Alice! Saw your launch - looks incredible! Would love to chat about a potential collaboration.',
+      contentHtml: '<p>Hey Alice! Saw your launch - looks incredible! Would love to chat about a potential collaboration.</p>',
     },
   });
 
-  await prisma.conversation.update({
-    where: { id: conversation.id },
-    data: { lastMessageId: msg2.id },
+  await prisma.message.create({
+    data: {
+      conversationId: conversation.id,
+      senderId: alice.id,
+      content: 'Thanks Bob! That sounds great - what did you have in mind?',
+      contentHtml: '<p>Thanks Bob! That sounds great - what did you have in mind?</p>',
+    },
   });
 
-  console.log('✓ Created conversation and messages');
-
-  // ──────────────────────────────────────────────────────
   // Create notifications
-  // ──────────────────────────────────────────────────────
+  console.log('🔔 Creating notifications...');
+
   await prisma.notification.createMany({
     data: [
       {
         recipientId: alice.id,
         type: 'like',
-        actorId: carol.id,
-        postId: post1.id,
-        title: 'Carol liked your post',
-        body: 'Just shipped the Nexus momentum feed algorithm 🚀',
-        actionUrl: `/posts/${post1.id}`,
-        groupKey: `like:post:${post1.id}`,
-        isRead: false,
+        actorId: bob.id,
+        postId: alicePost.id,
+        title: 'New like',
+        body: 'Bob Martinez liked your post',
+        actionUrl: `/post/${alicePost.id}`,
+        groupKey: `like:${alicePost.id}`,
       },
       {
         recipientId: alice.id,
         type: 'follow',
-        actorId: dave.id,
-        title: 'Dave Code followed you',
-        body: 'DevOps & infrastructure. Everything as code.',
-        actionUrl: `/users/davecode`,
-        isRead: false,
+        actorId: emma.id,
+        title: 'New follower',
+        body: 'Emma Johnson started following you',
+        actionUrl: '/emma',
       },
       {
-        recipientId: alice.id,
+        recipientId: bob.id,
         type: 'reply',
-        actorId: bob.id,
-        postId: reply1.id,
-        title: 'Bob Builder replied to your post',
-        body: 'The momentum scoring makes so much sense...',
-        actionUrl: `/posts/${reply1.id}`,
-        isRead: true,
-        readAt: new Date(Date.now() - 3600000),
+        actorId: alice.id,
+        postId: emmaPost.id,
+        title: 'New reply',
+        body: 'Alice Chen replied to a post you\'re in',
+        actionUrl: `/post/${emmaPost.id}`,
       },
     ],
   });
 
-  console.log('✓ Created notifications');
-
-  console.log('\n✅ Nexus database seeded successfully!');
-  console.log('\n📬 Test accounts:');
-  console.log('  alice@nexus.dev  / Password123  (creator, verified)');
-  console.log('  bob@nexus.dev    / Password123  (personal)');
-  console.log('  carol@nexus.dev  / Password123  (creator, verified)');
-  console.log('  dave@nexus.dev   / Password123  (personal)');
+  console.log('✅ Database seeded successfully!');
+  console.log(`   Created ${users.length} users`);
+  console.log(`   Created ${posts.length + 2} posts (including replies)`);
+  console.log('   Created 1 poll with 4 options');
+  console.log('   Created 15 likes');
+  console.log('   Created 1 subscription tier');
+  console.log('   Created 1 conversation with 2 messages');
+  console.log('   Created 3 notifications');
 }
 
 main()
   .catch((error) => {
-    console.error('Seed failed:', error);
+    console.error('❌ Seed failed:', error);
     process.exit(1);
   })
-  .finally(() => prisma.$disconnect());
+  .finally(async () => {
+    await prisma.$disconnect();
+  });

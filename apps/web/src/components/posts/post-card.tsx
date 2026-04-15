@@ -157,9 +157,12 @@ export const PostCard = memo(function PostCard({ post, variant = 'feed', showMom
     if (variant !== 'detail') {
       router.push(`/p/${post.id}`);
     }
-  }, [variant, post.id]);
+  }, [variant, post.id, router]);
 
-  const timeAgo = formatDistanceToNowStrict(new Date(post.createdAt), { addSuffix: false });
+  const timeAgo = formatDistanceToNowStrict(
+    new Date(typeof post.createdAt === 'string' ? post.createdAt : new Date()),
+    { addSuffix: false },
+  );
   const isHot = post.momentumScore >= 80;
   const isTrending = post.momentumVelocity > 5;
 

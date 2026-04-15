@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 // NOTIFICATION TYPE DEFINITIONS
-// Types for notification events, counts, and preferences
+// Types for the notification system
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import { BaseEntity } from './common';
@@ -8,22 +8,23 @@ import { UserReference } from './user';
 import { Post } from './post';
 
 /**
- * Notification action types
+ * Notification types
  */
 export type NotificationType =
-  | 'like'              // Someone liked your post
-  | 'repost'            // Someone reposted your post
-  | 'quote'             // Someone quoted your post
-  | 'reply'             // Someone replied to your post
-  | 'mention'           // Someone mentioned you
-  | 'follow'            // Someone followed you
-  | 'follow_request'    // Someone requested to follow you
-  | 'follow_accepted'   // Your follow request was accepted
-  | 'tip_received'      // You received a tip
-  | 'subscription_new'  // New subscriber
-  | 'subscription_renewal' // Subscriber renewed
-  | 'post_milestone'    // Your post hit a milestone (100 likes, etc.)
-  | 'system';           // Platform announcements
+  | 'like'
+  | 'repost'
+  | 'quote'
+  | 'reply'
+  | 'mention'
+  | 'follow'
+  | 'follow_request'
+  | 'follow_request_accepted'
+  | 'subscription'
+  | 'tip'
+  | 'poll_ended'
+  | 'thread_reply'
+  | 'milestone'
+  | 'system';
 
 /**
  * Core notification entity
@@ -31,99 +32,101 @@ export type NotificationType =
 export interface Notification extends BaseEntity {
   recipientId: string;
   type: NotificationType;
-
-  // Who triggered the notification
+  
+  // Actor(s) who triggered the notification
   actorId: string | null;
-  actor?: UserReference | null;
-
+  actor?: UserReference;
+  
+  // For grouped notifications (multiple likes, etc.)
+  actorIds: string[];
+  actors?: UserReference[];
+  actorCount: number;
+  
   // Related entities
   postId: string | null;
-  post?: Pick<Post, 'id' | 'content' | 'authorId'> | null;
-  commentId: string | null;
-
+  post?: Post;
+  
   // Notification content
   title: string;
   body: string;
-  imageUrl: string | null;
-
-  // State
+  
+  // Status
   isRead: boolean;
   readAt: Date | string | null;
-
-  // Grouping (multiple actors for same action e.g. "3 people liked your post")
-  groupKey: string | null;           // e.g. "like:post:abc123"
-  groupActorCount: number;           // Total actors in group
-  groupActors: UserReference[];      // Preview actors (up to 3)
-
+  
+  // Grouping key for collapsing similar notifications
+  groupKey: string | null;
+  
   // Deep link
-  actionUrl: string | null;
+  actionUrl: string;
 }
 
 /**
- * Notification unread counts
+ * Notification creation input (internal)
  */
-export interface NotificationCounts {
-  total: number;
-  likes: number;
-  reposts: number;
-  replies: number;
-  follows: number;
-  mentions: number;
-  payments: number;
-  system: number;
+export interface CreateNotificationInput {
+  recipientId: string;
+  type: NotificationType;
+  actorId?: string;
+  postId?: string;
+  data?: Record<string, unknown>;
 }
 
 /**
  * Notification preferences per type
  */
 export interface NotificationPreferences {
-  likes: NotificationDelivery;
-  reposts: NotificationDelivery;
-  quotes: NotificationDelivery;
-  replies: NotificationDelivery;
-  mentions: NotificationDelivery;
-  follows: NotificationDelivery;
-  followRequests: NotificationDelivery;
-  tips: NotificationDelivery;
-  subscriptions: NotificationDelivery;
-  system: NotificationDelivery;
+  userId: string;
+  
+  // Per-type settings
+  likes: NotificationChannels;
+  reposts: NotificationChannels;
+  quotes: NotificationChannels;
+  replies: NotificationChannels;
+  mentions: NotificationChannels;
+  follows: NotificationChannels;
+  subscriptions: NotificationChannels;
+  tips: NotificationChannels;
+  milestones: NotificationChannels;
+  system: NotificationChannels;
+  
+  // Global settings
+  digestFrequency: 'realtime' | 'hourly' | 'daily' | 'weekly' | 'never';
+  quietHoursStart: string | null; // HH:mm format
+  quietHoursEnd: string | null;
+  quietHoursTimezone: string;
 }
 
 /**
- * How a notification should be delivered
+ * Notification delivery channels
  */
-export interface NotificationDelivery {
+export interface NotificationChannels {
   inApp: boolean;
   push: boolean;
   email: boolean;
 }
 
 /**
- * Notification group (for UI rendering)
- * Groups multiple notification actors into a single notification item
+ * Notification count response
  */
-export interface NotificationGroup {
-  groupKey: string;
-  type: NotificationType;
-  actors: UserReference[];
-  totalActors: number;
-  post?: Pick<Post, 'id' | 'content' | 'authorId'> | null;
-  newestAt: Date | string;
-  isRead: boolean;
-  actionUrl: string | null;
+export interface NotificationCounts {
+  total: number;
+  unread: number;
+  byType: Partial<Record<NotificationType, number>>;
 }
 
 /**
- * Input for creating a notification internally
+ * Push notification registration
  */
-export interface CreateNotificationInput {
-  recipientId: string;
-  type: NotificationType;
-  actorId?: string | null;
-  postId?: string | null;
-  commentId?: string | null;
-  title: string;
-  body: string;
-  imageUrl?: string | null;
-  actionUrl?: string | null;
+export interface PushSubscription {
+  id: string;
+  userId: string;
+  endpoint: string;
+  keys: {
+    p256dh: string;
+    auth: string;
+  };
+  userAgent: string;
+  createdAt: Date | string;
+  lastUsedAt: Date | string;
 }

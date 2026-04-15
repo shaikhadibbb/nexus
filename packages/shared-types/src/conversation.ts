@@ -1,177 +1,138 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 // CONVERSATION TYPE DEFINITIONS
-// Types for direct messages, group chats, and messaging
+// Types for direct messaging and conversations
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { BaseEntity, SoftDeletable } from './common';
+import { BaseEntity } from './common';
 import { UserReference } from './user';
 import { MediaAsset } from './media';
 
 /**
- * Conversation types
- */
-export type ConversationType = 'direct' | 'group';
-
-/**
- * Message content types
- */
-export type MessageContentType = 'text' | 'media' | 'post_share' | 'system';
-
-/**
- * Conversation entity
+ * Conversation (DM thread)
  */
 export interface Conversation extends BaseEntity {
-  type: ConversationType;
-  name: string | null;           // For group conversations
-  avatarUrl: string | null;      // For group conversations
-  creatorId: string | null;      // For group conversations
-
-  // Members
-  members: ConversationMember[];
-  memberCount: number;
-
-  // Latest message preview
-  lastMessage: MessagePreview | null;
-
-  // Request/acceptance model for DMs
-  isAccepted: boolean;
-  isRequestHidden: boolean;
-
-  // Muted state for current user (populated per-user)
-  isMuted?: boolean;
-  mutedUntil?: Date | string | null;
-}
-
-/**
- * Lightweight conversation for list views
- */
-export interface ConversationListItem {
-  id: string;
-  type: ConversationType;
-  name: string | null;
-  avatarUrl: string | null;
-
-  // Other participants (for display in list)
-  otherMembers: UserReference[];
-
-  // Last message
-  lastMessage: MessagePreview | null;
-
-  // State
+  // Participants
+  participantIds: string[];
+  participants?: UserReference[];
+  
+  // Group chat fields
+  isGroup: boolean;
+  groupName: string | null;
+  groupAvatarUrl: string | null;
+  
+  // Last message preview
+  lastMessageId: string | null;
+  lastMessage?: Message;
+  lastMessageAt: Date | string | null;
+  
+  // Read state
   unreadCount: number;
-  isMuted: boolean;
-
-  updatedAt: Date | string;
-}
-
-/**
- * Conversation member
- */
-export interface ConversationMember {
-  userId: string;
-  user?: UserReference;
-  role: 'owner' | 'admin' | 'member';
-  joinedAt: Date | string;
-
-  // Per-member state
   lastReadAt: Date | string | null;
-  lastReadMessageId: string | null;
+  
+  // Settings
   isMuted: boolean;
   mutedUntil: Date | string | null;
-  isHidden: boolean;
+  isPinned: boolean;
+  
+  // Status
+  isArchived: boolean;
 }
 
 /**
- * Full message entity
+ * Direct message
  */
-export interface Message extends BaseEntity, SoftDeletable {
+export interface Message extends BaseEntity {
   conversationId: string;
   senderId: string;
   sender?: UserReference;
-
-  contentType: MessageContentType;
+  
+  // Content
   content: string;
-
+  contentHtml: string;
+  
   // Media attachments
   media: MediaAsset[];
-
-  // Reply context
+  
+  // Reply to another message
   replyToId: string | null;
-  replyTo?: MessagePreview | null;
-
-  // Reactions
-  reactions: MessageReaction[];
-
-  // Edit history
+  replyTo?: Message;
+  
+  // Read receipts
+  readBy: ReadReceipt[];
+  
+  // Status
   isEdited: boolean;
   editedAt: Date | string | null;
-
-  // Read receipts
-  readBy: MessageReadReceipt[];
-
-  // Delivery status (for current sender)
-  deliveryStatus?: 'sent' | 'delivered' | 'read';
+  deletedAt: Date | string | null;
+  
+  // Delivery status for sender
+  deliveryStatus: 'sending' | 'sent' | 'delivered' | 'read' | 'failed';
 }
 
 /**
- * Minimal message preview for conversation list
+ * Read receipt
  */
-export interface MessagePreview {
-  id: string;
-  senderId: string;
-  senderUsername: string;
-  content: string;
-  contentType: MessageContentType;
-  hasMedia: boolean;
-  createdAt: Date | string;
+export interface ReadReceipt {
+  userId: string;
+  readAt: Date | string;
 }
 
 /**
  * Message reaction
  */
-export interface MessageReaction {
-  emoji: string;
-  count: number;
-  reactor?: UserReference;
-  reactorIds: string[];
-  hasReacted?: boolean; // Current user
-}
-
-/**
- * Read receipt for a message
- */
-export interface MessageReadReceipt {
+export interface MessageReaction extends BaseEntity {
+  messageId: string;
   userId: string;
   user?: UserReference;
-  readAt: Date | string;
+  emoji: string;
 }
 
 /**
- * Typing indicator
+ * Typing indicator state
  */
 export interface TypingIndicator {
+  conversationId: string;
   userId: string;
-  username: string;
-  displayName: string;
-  avatarUrl: string | null;
+  user?: UserReference;
   startedAt: Date | string;
 }
 
 /**
- * Input for sending a message
- */
-export interface SendMessageInput {
-  content: string;
-  mediaIds?: string[];
-  replyToId?: string;
-}
-
-/**
- * Input for creating a conversation
+ * Create conversation input
  */
 export interface CreateConversationInput {
   participantIds: string[];
   isGroup?: boolean;
   groupName?: string;
   initialMessage?: string;
+}
+
+/**
+ * Send message input
+ */
+export interface SendMessageInput {
+  conversationId: string;
+  content: string;
+  mediaIds?: string[];
+  replyToId?: string;
+}
+
+/**
+ * Conversation list item (optimized for list view)
+ */
+export interface ConversationListItem {
+  id: string;
+  participants: UserReference[];
+  isGroup: boolean;
+  groupName: string | null;
+  groupAvatarUrl: string | null;
+  lastMessage: {
+    content: string;
+    senderId: string;
+    senderName: string;
+    sentAt: Date | string;
+  } | null;
+  unreadCount: number;
+  isPinned: boolean;
+  isMuted: boolean;
 }

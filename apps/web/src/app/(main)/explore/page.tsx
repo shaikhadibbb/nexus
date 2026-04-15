@@ -51,10 +51,10 @@ export default function ExplorePage() {
   const { token } = useAuth();
   const api = createApiClient(token ?? undefined);
 
-  const tagsQuery = useQuery({
-    queryKey: ['explore-tags'],
-    queryFn: async () => extractTags(await api.feed.trending('day')),
-  });
+  // const tagsQuery = useQuery({
+  //   queryKey: ['explore-tags'],
+  //   queryFn: async () => extractTags(await api.feed.trending('day')),
+  // });
 
   const postsQuery = useQuery({
     queryKey: ['explore-trending-posts'],
@@ -70,13 +70,14 @@ export default function ExplorePage() {
         <h1 className={styles.title}>Explore</h1>
       </header>
 
-      <div className={styles.hashtags}>
+      {/* Hashtags section disabled until Hashtag model is implemented */}
+      {/* <div className={styles.hashtags}>
         {(tagsQuery.data ?? []).slice(0, 12).map((tag) => (
           <Link key={tag.tag} href={`/hashtag/${tag.tag}`} className={styles.tag}>
             #{tag.tag}
           </Link>
         ))}
-      </div>
+      </div> */}
 
       {postsQuery.isLoading && <div className={styles.stateCard}>Loading trending posts...</div>}
       {postsQuery.isError && <div className={styles.stateCard}>Unable to load explore content right now.</div>}

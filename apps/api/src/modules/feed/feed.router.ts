@@ -71,15 +71,16 @@ feedRouter.get(
 );
 
 // GET /api/feed/trending/hashtags
-feedRouter.get(
-  '/trending/hashtags',
-  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      const result = await feedService.getTrendingHashtags(
-        10,
-        (req.query['window'] as 'hour' | 'day' | 'week') ?? 'day',
-      );
-      sendSuccess(res, result);
-    } catch (err) { next(err); }
-  },
-);
+// TODO: Implement hashtags support (Hashtag model not yet in schema)
+// feedRouter.get(
+//   '/trending/hashtags',
+//   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+//     try {
+//       const result = await feedService.getTrendingHashtags(
+//         10,
+//         (req.query['window'] as 'hour' | 'day' | 'week') ?? 'day',
+//       );
+//       sendSuccess(res, result);
+//     } catch (err) { next(err); }
+//   },
+// );

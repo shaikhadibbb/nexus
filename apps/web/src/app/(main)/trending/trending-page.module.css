@@ -1,0 +1,41 @@
+.page {
+  width: 100%;
+  min-height: 100dvh;
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  padding: var(--spacing-lg) var(--spacing-md);
+  border-bottom: 1px solid var(--color-border);
+  background: color-mix(in srgb, var(--color-bg) 84%, transparent);
+  backdrop-filter: blur(var(--blur-glass));
+  -webkit-backdrop-filter: blur(var(--blur-glass));
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.subtitle {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin: 4px 0 0 0;
+}
+
+.postWrap {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.stateCard {
+  margin: var(--spacing-lg);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  padding: var(--spacing-lg);
+  color: var(--text-secondary);
+  text-align: center;
+}

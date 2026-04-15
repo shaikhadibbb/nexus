@@ -54,7 +54,7 @@ const FEED_POST_SELECT = {
         },
       },
     },
-    orderBy: { order: 'asc' as const },
+    orderBy: { position: 'asc' as const },
   },
 };
 
@@ -171,7 +171,7 @@ export async function getHomeFeed(
       ],
     },
     select: FEED_POST_SELECT,
-    orderBy: [{ momentumScore: 'desc' }, { createdAt: 'desc' }],
+    orderBy: [{ momentumScore: 'desc' }, { likeCount: 'desc' }],
     take: limit + 1,
   });
 

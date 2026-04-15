@@ -81,7 +81,7 @@ export async function register(input: {
       email,
       username,
       displayName,
-      passwordHash,
+      password: passwordHash,
       status: 'active',
       accountType: 'personal',
     },
@@ -124,7 +124,7 @@ export async function login(input: {
     where: { email },
   });
 
-  if (!user || !user.passwordHash) {
+  if (!user || !user.password) {
     // Timing-safe: always hash even on failure
     await bcrypt.hash(password, BCRYPT_ROUNDS);
     throw authError('Invalid email or password');
@@ -138,7 +138,7 @@ export async function login(input: {
     throw authError('Account deactivated');
   }
 
-  const valid = await bcrypt.compare(password, user.passwordHash);
+  const valid = await bcrypt.compare(password, user.password);
   if (!valid) throw authError('Invalid email or password');
 
   const { session, accessToken, refreshTokenValue, expiresAt } = await createSession(user.id, {
@@ -261,27 +261,19 @@ async function createSession(
   const accessToken = generateAccessToken(userSession);
   const refreshTokenValue = generateRefreshToken();
 
-  const [session] = await prisma.$transaction([
-    prisma.session.upsert({
-      where: { id: sessionId },
-      update: { lastUsedAt: new Date(), expiresAt: sessionExpiresAt },
-      create: {
-        id: sessionId,
-        userId,
-        userAgent,
-        ipAddress,
-        expiresAt: sessionExpiresAt,
-      },
-    }),
-    prisma.refreshToken.create({
-      data: {
-        token: refreshTokenValue,
-        userId,
-        sessionId,
-        expiresAt: refreshExpiresAt,
-      },
-    }),
-  ]);
+  // Delete any existing sessions for this user and create a new one
+  await prisma.session.deleteMany({ where: { userId } });
+
+  const session = await prisma.session.create({
+    data: {
+      id: sessionId,
+      userId,
+      refreshToken: refreshTokenValue,
+      userAgent,
+      ipAddress,
+      expiresAt: sessionExpiresAt,
+    },
+  });
 
   if (!session) throw internalError('Failed to create session');
 
