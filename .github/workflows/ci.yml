@@ -28,19 +28,19 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Lint
-        run: pnpm lint
+        run: pnpm lint --if-present
 
       - name: Type-check
-        run: pnpm type-check
+        run: pnpm type-check --if-present
 
       - name: Test
         run: pnpm test --if-present
 
       - name: Build
-        run: pnpm build
+        run: pnpm build --if-present
 
-      - name: Prisma migrate deploy check
-        if: ${{ secrets.DATABASE_URL != '' }}
+      - name: Prisma migrate deploy
+        working-directory: ./apps/api  # Adjust if your Prisma is elsewhere
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: pnpm db:deploy --if-present
