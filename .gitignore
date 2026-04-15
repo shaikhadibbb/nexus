@@ -6,3 +6,6 @@ build/
 .env.local
 .DS_Store
 .turbo/
+*.db
+*.sqlite
+*.sqlite3

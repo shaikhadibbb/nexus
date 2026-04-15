@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
+import Link from 'next/link';
 import { createApiClient } from '@/lib/api-client';
 import { PostCard, type PostCardData } from '@/components/posts/post-card';
 import { useAuth } from '@/lib/store';
@@ -11,6 +12,17 @@ import styles from './trending-page.module.css';
 function asRecord(value: unknown): Record<string, unknown> | null {
   return value && typeof value === 'object' ? (value as Record<string, unknown>) : null;
 }
+
+const fallbackTopics = [
+  'buildinpublic',
+  'ai',
+  'webdev',
+  'design',
+  'productivity',
+  'startups',
+  'indiehackers',
+  'nexus',
+];
 
 function extractTrendingPosts(payload: unknown): PostCardData[] {
   const root = asRecord(payload);
@@ -53,7 +65,17 @@ export default function TrendingPage() {
       {postsQuery.isLoading && <div className={styles.stateCard}>Loading trending posts...</div>}
       {postsQuery.isError && <div className={styles.stateCard}>Unable to load trending content right now.</div>}
       {!postsQuery.isLoading && !postsQuery.isError && (postsQuery.data?.length ?? 0) === 0 && (
-        <div className={styles.stateCard}>Nothing trending yet.</div>
+        <div className={styles.stateCard}>Nothing trending yet. Browse popular topics:</div>
+      )}
+
+      {!postsQuery.isLoading && (postsQuery.data?.length ?? 0) === 0 && (
+        <div className={styles.fallbackTopics}>
+          {fallbackTopics.map((tag) => (
+            <Link key={tag} href={`/explore?q=${tag}`} className={styles.topicChip}>
+              #{tag}
+            </Link>
+          ))}
+        </div>
       )}
 
       <AnimatePresence initial={false}>

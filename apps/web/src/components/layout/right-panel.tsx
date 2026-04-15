@@ -10,6 +10,14 @@ import { listContainerVariants, listItemVariants } from '@/lib/framer-variants';
 import styles from './right-panel.module.css';
 
 const client = createApiClient();
+const fallbackHashtags = [
+  { tag: 'buildinpublic', postCount: 1280, velocity: 1 },
+  { tag: 'ai', postCount: 940, velocity: 1 },
+  { tag: 'webdev', postCount: 860, velocity: 0 },
+  { tag: 'design', postCount: 640, velocity: 0 },
+  { tag: 'startups', postCount: 520, velocity: 0 },
+  { tag: 'productivity', postCount: 440, velocity: 0 },
+];
 
 export function RightPanel() {
   const { data: trends } = useQuery({
@@ -18,7 +26,8 @@ export function RightPanel() {
     staleTime: 5 * 60 * 1000,
   });
 
-  const hashtags = (trends as { hashtags?: { tag: string; postCount: number; velocity: number }[] })?.hashtags ?? [];
+  const apiHashtags = (trends as { hashtags?: { tag: string; postCount: number; velocity: number }[] })?.hashtags ?? [];
+  const hashtags = apiHashtags.length > 0 ? apiHashtags : fallbackHashtags;
 
   return (
     <div className={styles.panel}>
@@ -66,16 +75,6 @@ export function RightPanel() {
             </motion.li>
           ))}
 
-          {/* Skeleton when loading */}
-          {hashtags.length === 0 &&
-            Array.from({ length: 6 }).map((_, i) => (
-              <li key={i}>
-                <div className={styles.skeleton}>
-                  <div className="skeleton" style={{ height: 12, width: '40%', marginBottom: 6 }} />
-                  <div className="skeleton" style={{ height: 10, width: '60%' }} />
-                </div>
-              </li>
-            ))}
         </motion.ul>
       </div>
 

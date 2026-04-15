@@ -14,6 +14,15 @@ interface TrendingTag {
   postCount: number;
 }
 
+const fallbackTopics: TrendingTag[] = [
+  { tag: 'buildinpublic', postCount: 1280 },
+  { tag: 'ai', postCount: 940 },
+  { tag: 'webdev', postCount: 860 },
+  { tag: 'design', postCount: 640 },
+  { tag: 'startups', postCount: 520 },
+  { tag: 'productivity', postCount: 440 },
+];
+
 function asRecord(value: unknown): Record<string, unknown> | null {
   return value && typeof value === 'object' ? (value as Record<string, unknown>) : null;
 }
@@ -82,7 +91,17 @@ export default function ExplorePage() {
       {postsQuery.isLoading && <div className={styles.stateCard}>Loading trending posts...</div>}
       {postsQuery.isError && <div className={styles.stateCard}>Unable to load explore content right now.</div>}
       {!postsQuery.isLoading && !postsQuery.isError && (postsQuery.data?.length ?? 0) === 0 && (
-        <div className={styles.stateCard}>Nothing trending yet.</div>
+        <div className={styles.stateCard}>Nothing trending yet. Try these topics:</div>
+      )}
+
+      {!postsQuery.isLoading && (postsQuery.data?.length ?? 0) === 0 && (
+        <div className={styles.hashtags}>
+          {fallbackTopics.map((topic) => (
+            <Link key={topic.tag} href={`/trending?q=${topic.tag}`} className={styles.tag}>
+              #{topic.tag} · {topic.postCount.toLocaleString()}
+            </Link>
+          ))}
+        </div>
       )}
 
       <AnimatePresence initial={false}>

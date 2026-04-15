@@ -7,7 +7,10 @@
   position: sticky;
   top: 0;
   z-index: 20;
-  padding: var(--spacing-lg) var(--spacing-md);
+  height: 56px;
+  display: flex;
+  align-items: center;
+  padding: 0 var(--spacing-md);
   border-bottom: 1px solid var(--color-border);
   background: color-mix(in srgb, var(--color-bg) 84%, transparent);
   backdrop-filter: blur(var(--blur-glass));
@@ -15,19 +18,8 @@
 }
 
 .title {
-  font-size: 1.5rem;
+  font-size: 1rem;
   font-weight: 700;
-  margin: 0;
-}
-
-.subtitle {
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-  margin: 4px 0 0 0;
-}
-
-.postWrap {
-  border-bottom: 1px solid var(--color-border);
 }
 
 .stateCard {
@@ -37,22 +29,30 @@
   background: var(--glass-bg);
   padding: var(--spacing-lg);
   color: var(--text-secondary);
-  text-align: center;
 }
 
-.fallbackTopics {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+.collections {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
   padding: 0 var(--spacing-lg) var(--spacing-lg);
 }
 
-.topicChip {
-  border-radius: 999px;
+.collection {
   border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
   background: var(--color-surface);
-  color: var(--text-primary);
-  padding: 6px 10px;
-  font-size: 0.84rem;
+  padding: 12px;
   text-decoration: none;
+}
+
+.collectionName {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.collectionMeta {
+  margin-top: 4px;
+  color: var(--text-muted);
+  font-size: 0.85rem;
 }

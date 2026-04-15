@@ -50,6 +50,60 @@ const configSchema = z.object({
   NEXT_PUBLIC_APP_URL: z.string().default('http://localhost:3000'),
 });
 
+const weakSecretPatterns = [
+  /changeme/i,
+  /change[-_ ]?in[-_ ]?production/i,
+  /your[-_ ]?super[-_ ]?secret/i,
+  /placeholder/i,
+  /example/i,
+  /default/i,
+  /secret/i,
+  /^jwt/i,
+];
+
+function hasSufficientEntropy(secret: string): boolean {
+  if (secret.length < 32) return false;
+  if (weakSecretPatterns.some((pattern) => pattern.test(secret))) return false;
+
+  const classes = [
+    /[a-z]/.test(secret),
+    /[A-Z]/.test(secret),
+    /[0-9]/.test(secret),
+    /[^a-zA-Z0-9]/.test(secret),
+  ].filter(Boolean).length;
+
+  return classes >= 3;
+}
+
+function parseCorsOrigins(raw: string): string[] {
+  const origins = raw
+    .split(',')
+    .map((value) => value.trim())
+    .filter(Boolean);
+
+  if (origins.length === 0) {
+    console.error('❌ CORS_ORIGINS must contain at least one valid origin');
+    process.exit(1);
+  }
+
+  const invalidOrigins = origins.filter((origin) => {
+    if (origin === '*') return true;
+    try {
+      const parsed = new URL(origin);
+      return !['http:', 'https:'].includes(parsed.protocol);
+    } catch {
+      return true;
+    }
+  });
+
+  if (invalidOrigins.length > 0) {
+    console.error('❌ Invalid CORS origins:', invalidOrigins);
+    process.exit(1);
+  }
+
+  return origins;
+}
+
 function parseConfig() {
   const result = configSchema.safeParse(process.env);
 
@@ -59,7 +113,19 @@ function parseConfig() {
     process.exit(1);
   }
 
-  return result.data;
+  const parsedConfig = result.data;
+
+  if (!hasSufficientEntropy(parsedConfig.JWT_SECRET)) {
+    console.error('❌ JWT_SECRET is weak. Use a high-entropy secret (32+ chars, mixed classes).');
+    process.exit(1);
+  }
+
+  if (!hasSufficientEntropy(parsedConfig.JWT_REFRESH_SECRET)) {
+    console.error('❌ JWT_REFRESH_SECRET is weak. Use a high-entropy secret (32+ chars, mixed classes).');
+    process.exit(1);
+  }
+
+  return parsedConfig;
 }
 
 export const config = parseConfig();
@@ -71,4 +137,5 @@ export const isDev = config.NODE_ENV === 'development';
 export const isProd = config.NODE_ENV === 'production';
 export const isTest = config.NODE_ENV === 'test';
 
-export const corsOrigins = config.CORS_ORIGINS.split(',').map((o) => o.trim());
+export const corsOrigins = parseCorsOrigins(config.CORS_ORIGINS);
+console.info('✅ Allowed CORS origins:', corsOrigins);
