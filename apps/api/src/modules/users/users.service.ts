@@ -119,17 +119,17 @@ export async function followUser(followerId: string, followingId: string) {
     where: { followerId_followingId: { followerId, followingId } },
   });
 
-  if (existing && !existing.isPending) throw conflictError('Already following');
+  if (existing && existing.status === 'active') throw conflictError('Already following');
 
-  const isPending = target.isPrivate;
+  const status = target.isPrivate ? 'pending' : 'active';
 
   await prisma.$transaction([
     prisma.follow.upsert({
       where: { followerId_followingId: { followerId, followingId } },
-      update: { isPending },
-      create: { followerId, followingId, isPending },
+      update: { status },
+      create: { followerId, followingId, status },
     }),
-    ...(!isPending
+    ...(status === 'active'
       ? [
           prisma.user.update({
             where: { id: followingId },
@@ -143,7 +143,7 @@ export async function followUser(followerId: string, followingId: string) {
       : []),
   ]);
 
-  return { isPending };
+  return { isPending: status === 'pending' };
 }
 
 export async function unfollowUser(followerId: string, followingId: string) {
@@ -157,7 +157,7 @@ export async function unfollowUser(followerId: string, followingId: string) {
     prisma.follow.delete({
       where: { followerId_followingId: { followerId, followingId } },
     }),
-    ...(!follow.isPending
+    ...(follow.status === 'active'
       ? [
           prisma.user.update({
             where: { id: followingId },
@@ -242,7 +242,7 @@ export async function getFollowers(userId: string, limit = 20, cursor?: string) 
     : { followingId: userId };
 
   const follows = await prisma.follow.findMany({
-    where: { ...where, isPending: false },
+    where: { ...where, status: 'active' },
     include: { follower: { select: PUBLIC_USER_SELECT } },
     orderBy: { createdAt: 'desc' },
     take: limit + 1,
@@ -269,7 +269,7 @@ export async function getFollowing(userId: string, limit = 20, cursor?: string) 
     : { followerId: userId };
 
   const follows = await prisma.follow.findMany({
-    where: { ...where, isPending: false },
+    where: { ...where, status: 'active' },
     include: { following: { select: PUBLIC_USER_SELECT } },
     orderBy: { createdAt: 'desc' },
     take: limit + 1,
@@ -334,12 +334,12 @@ async function getRelationship(viewerId: string, targetId: string) {
   ]);
 
   return {
-    isFollowing: !!follow && !follow.isPending,
-    isFollowedBy: !!followedBy && !followedBy.isPending,
+    isFollowing: !!follow && follow.status === 'active',
+    isFollowedBy: !!followedBy && followedBy.status === 'active',
     isBlocked: !!block,
     isBlockedBy: !!blockedBy,
     isMuted: !!mute,
-    followRequestPending: !!follow && follow.isPending,
+    followRequestPending: !!follow && follow.status === 'pending',
   };
 }
 

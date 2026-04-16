@@ -73,7 +73,7 @@ export async function getFollowingFeed(
 
   // Get followed user IDs
   const follows = await prisma.follow.findMany({
-    where: { followerId: userId, isPending: false },
+    where: { followerId: userId, status: 'active' },
     select: { followingId: true },
   });
 
@@ -131,7 +131,7 @@ export async function getHomeFeed(
     : 100;
 
   const follows = await prisma.follow.findMany({
-    where: { followerId: userId, isPending: false },
+    where: { followerId: userId, status: 'active' },
     select: { followingId: true },
   });
 
@@ -230,53 +230,11 @@ export async function getTrendingFeed(options?: {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export async function getTrendingHashtags(limit = 10, timeWindow: 'hour' | 'day' | 'week' = 'day') {
-  const redis = getRedis();
-  const cacheKey = `trending:hashtags:${timeWindow}`;
-
-  // Try cache first
-  const cached = await redis.get(cacheKey).catch(() => null);
-  if (cached) {
-    try { return JSON.parse(cached); } catch { /* re-compute */ }
-  }
-
-  const windowMs = timeWindow === 'hour' ? 3600000 : timeWindow === 'day' ? 86400000 : 604800000;
-  const since = new Date(Date.now() - windowMs);
-
-  const hashtags = await prisma.hashtag.findMany({
-    where: {
-      posts: {
-        some: {
-          post: {
-            createdAt: { gte: since },
-            deletedAt: null,
-            visibility: 'public',
-          },
-        },
-      },
-    },
-    include: {
-      _count: { select: { posts: true } },
-    },
-    orderBy: { postCount: 'desc' },
-    take: limit,
-  });
-
-  const result = {
-    hashtags: hashtags.map((h: { tag: string; postCount: number }) => ({
-      tag: h.tag,
-      postCount: h.postCount,
-      postCountChange: 0,
-      velocity: h.postCount / (windowMs / 3600000),
-      topPosts: [],
-      participantCount: h.postCount,
-    })),
+  // Stub implementation - hashtag model not available in schema
+  return {
+    hashtags: [],
     timeWindow,
   };
-
-  // Cache for 5 minutes
-  await redis.setex(cacheKey, 300, JSON.stringify(result)).catch(() => null);
-
-  return result;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
